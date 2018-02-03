@@ -17,25 +17,21 @@ def get_file_list(dirs_files_list):
     return file_list
 
 
-def compare_2_files(file_path_1, file_path_2):
-    if os.path.basename(file_path_1) == os.path.basename(file_path_2):
-        if os.path.getsize(file_path_1) == os.path.getsize(file_path_2):
-            return True
-    else:
-        return False
-
-
 def get_same_files_dict(file_list):
     same_files_dict = {}
     for file_1 in file_list:
+        file_size_1 = os.path.getsize(file_1)
+        file_name_1 = os.path.basename(file_1)
         for file_2 in file_list:
+            file_size_2 = os.path.getsize(file_2)
+            file_name_2 = os.path.basename(file_2)
             if file_1 != file_2:
-                if compare_2_files(file_1, file_2):
-                    if os.path.basename(file_1) in same_files_dict:
-                        if file_1 not in same_files_dict[os.path.basename(file_1)][1]:
-                            same_files_dict[os.path.basename(file_1)][1].append(file_1)
-                    else:
-                        same_files_dict[os.path.basename(file_1)] = [[os.path.getsize(file_1)], [file_1]]
+                if file_name_1 == file_name_2:
+                    if file_size_1 == file_size_2:
+                        if file_name_1 not in same_files_dict:
+                            same_files_dict[file_name_1] = [[file_size_1],[file_1]]
+                        elif file_1 not in same_files_dict[file_name_1][1]:
+                            same_files_dict[file_name_1][1].append(file_1)
     return same_files_dict
 
 
