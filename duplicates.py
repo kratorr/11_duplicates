@@ -2,57 +2,60 @@ import os
 import sys
 
 
-def get_dirs_files_list(path):
-    dirs_files_list = []
-    for current_dir, dirs, files in os.walk(path):
-        dirs_files_list.append([current_dir, dirs, files])
-    return dirs_files_list
+def get_root_dirs_files(path):
+    root_dirs_files = []
+    for root, dirs, filename in os.walk(path):
+        root_dirs_files.append([root,dirs,filename])
+    return root_dirs_files
 
 
-def get_file_list(dirs_files_list):
-    file_list = []
-    for dir_tuple in  dirs_files_list:
+def get_all_file_list(root_dirs_files):
+    all_file_list = []
+    for dir_tuple in root_dirs_files:
         for file_name in dir_tuple[2]:
-            file_list.append(dir_tuple[0] + "/" + file_name)  # append full path to file
-    return file_list
+            all_file_list.append(os.path.join(dir_tuple[0], file_name))
+    return all_file_list
 
 
-def get_same_files_dict(file_list):
-    same_files_dict = {}
-    for file_1 in file_list:
-        file_size_1 = os.path.getsize(file_1)
-        file_name_1 = os.path.basename(file_1)
-        for file_2 in file_list:
-            file_size_2 = os.path.getsize(file_2)
-            file_name_2 = os.path.basename(file_2)
-            if file_1 != file_2:
-                if file_name_1 == file_name_2:
-                    if file_size_1 == file_size_2:
-                        if file_name_1 not in same_files_dict:
-                            same_files_dict[file_name_1] = [[file_size_1],[file_1]]
-                        elif file_1 not in same_files_dict[file_name_1][1]:
-                            same_files_dict[file_name_1][1].append(file_1)
-    return same_files_dict
+def create_filename_size_dict(file_list):
+    filename_size_dict = {}
+    for file in file_list:
+        if (os.path.basename(file), os.path.getsize(file)) not in filename_size_dict:
+            filename_size_dict[(os.path.basename(file), os.path.getsize(file))] = [file]
+        else:
+            pass
+            filename_size_dict[(os.path.basename(file), os.path.getsize(file))].append(file)
+    return filename_size_dict
 
 
-def pretty_print_same_files(same_files_dict):
+def delete_non_duplicate_files(filename_size_dict):
+    duplicate_dict = filename_size_dict
+    for file_key in list(filename_size_dict):
+        if len(filename_size_dict[file_key]) <= 1:
+            filename_size_dict.pop(file_key)
+    return duplicate_dict
+
+
+def pretty_print_same_files(duplicate_dict):
     print("Same files: ")
-    for file_name in same_files_dict:
-        print("File name: {}".format(file_name))
-        print("File size: {} bytes".format(same_files_dict[file_name][0]))
-        print("File paths:")
-        for file_path in same_files_dict[file_name][1]:
-            print(file_path)
-        print()
+    for file_key in duplicate_dict:
+            print("File name: {}".format(file_key[0]))
+            print("File size: {} bytes".format(file_key[1]))
+            print("File paths:")
+            for file_path in duplicate_dict[file_key]:
+                print(file_path)
+            print()
 
 
 if __name__ == '__main__':
     try:
         file_path = sys.argv[1]
         if os.path.isdir(file_path):
-            file_list = get_file_list(get_dirs_files_list(file_path))
-            same_files_dict = get_same_files_dict(file_list)
-            pretty_print_same_files(same_files_dict)
+            root_dirs_files = get_root_dirs_files(file_path)
+            file_list = get_all_file_list(root_dirs_files)
+            duplicate_dict = delete_non_duplicate_files(create_filename_size_dict(file_list))
+            pretty_print_same_files(duplicate_dict)
+
         else:
             print("Argument is not directory")
     except IndexError:
