@@ -22,9 +22,7 @@ def get_duplicate_files(filename_size_dict):
 
 
 def pretty_print_same_files(duplicate_dict):
-    if len(duplicate_dict) == 0:
-        print("There are no duplicates in the directory")
-    else:
+    if duplicate_dict:
         print("Same files: ")
         for file_key in duplicate_dict:
             print("File name: {}".format(file_key[0]))
@@ -33,6 +31,8 @@ def pretty_print_same_files(duplicate_dict):
             for file_path in duplicate_dict[file_key]:
                 print(file_path)
             print()
+    else:
+        print("There are no duplicates in the directory")
 
 
 if __name__ == '__main__':
