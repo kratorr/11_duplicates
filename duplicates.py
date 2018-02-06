@@ -1,34 +1,19 @@
 import os
 import sys
+import collections
 
 
-def get_root_dirs_files(path):
-    root_dirs_files = []
-    for root, dirs, filename in os.walk(path):
-        root_dirs_files.append([root,dirs,filename])
-    return root_dirs_files
+def get_file_key_dict(path):
+    file_key_dict = collections.defaultdict(list)
+    for root, _, filenames in os.walk(path):
+        for file_name in filenames:
+            file_path = os.path.join(root, file_name)
+            file_size = os.path.getsize(file_path)
+            file_key_dict[(file_name, file_size)].append(file_path)
+    return file_key_dict
 
 
-def get_all_file_list(root_dirs_files):
-    all_file_list = []
-    for dir_tuple in root_dirs_files:
-        for file_name in dir_tuple[2]:
-            all_file_list.append(os.path.join(dir_tuple[0], file_name))
-    return all_file_list
-
-
-def create_filename_size_dict(file_list):
-    filename_size_dict = {}
-    for file in file_list:
-        if (os.path.basename(file), os.path.getsize(file)) not in filename_size_dict:
-            filename_size_dict[(os.path.basename(file), os.path.getsize(file))] = [file]
-        else:
-            pass
-            filename_size_dict[(os.path.basename(file), os.path.getsize(file))].append(file)
-    return filename_size_dict
-
-
-def delete_non_duplicate_files(filename_size_dict):
+def get_duplicate_files(filename_size_dict):
     duplicate_dict = filename_size_dict
     for file_key in list(filename_size_dict):
         if len(filename_size_dict[file_key]) <= 1:
@@ -37,8 +22,11 @@ def delete_non_duplicate_files(filename_size_dict):
 
 
 def pretty_print_same_files(duplicate_dict):
-    print("Same files: ")
-    for file_key in duplicate_dict:
+    if len(duplicate_dict) == 0:
+        print("There are no duplicates in the directory")
+    else:
+        print("Same files: ")
+        for file_key in duplicate_dict:
             print("File name: {}".format(file_key[0]))
             print("File size: {} bytes".format(file_key[1]))
             print("File paths:")
@@ -51,14 +39,10 @@ if __name__ == '__main__':
     try:
         file_path = sys.argv[1]
         if os.path.isdir(file_path):
-            root_dirs_files = get_root_dirs_files(file_path)
-            file_list = get_all_file_list(root_dirs_files)
-            duplicate_dict = delete_non_duplicate_files(create_filename_size_dict(file_list))
-            pretty_print_same_files(duplicate_dict)
-
+            file_key_dict = get_file_key_dict(file_path)
+            duplicates = get_duplicate_files(file_key_dict)
+            pretty_print_same_files(duplicates)
         else:
             print("Argument is not directory")
     except IndexError:
         print("Arguments error")
-    except ValueError:
-        print("The specified file format does not match")
