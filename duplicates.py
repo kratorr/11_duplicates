@@ -24,11 +24,13 @@ def get_duplicate_files(file_location_dict):
 
 def pretty_print_same_files(duplicate_dict):
     print("Same files: ")
-    for file_key in duplicate_dict:
-        print("File name: {}".format(file_key[0]))
-        print("File size: {} bytes".format(file_key[1]))
+    for file in duplicate_dict:
+        file_name = file[0]
+        file_size = file[1]
+        print("File name: {}".format(file_name))
+        print("File size: {} bytes".format(file_size))
         print("File paths:")
-        for file_path in duplicate_dict[file_key]:
+        for file_path in duplicate_dict[file]:
             print(file_path)
         print()
 
@@ -36,6 +38,9 @@ def pretty_print_same_files(duplicate_dict):
 if __name__ == "__main__":
     try:
         file_path = sys.argv[1]
+    except IndexError:
+        print("Arguments error")
+    else:
         if os.path.isdir(file_path):
             file_location_dict = get_file_location_dict(file_path)
             duplicates = get_duplicate_files(file_location_dict)
@@ -45,5 +50,4 @@ if __name__ == "__main__":
                 print("There are no duplicates in the directory")
         else:
             print("Argument is not directory")
-    except IndexError:
-        print("Arguments error")
+
