@@ -14,17 +14,16 @@ def get_files_locations_dict(path):
 
 
 def get_duplicate_files(files_locations_dict):
-    duplicate_dict = files_locations_dict
-    for file_name, file_locations in list(duplicate_dict.items()):
-        if len(file_locations) <= 1:
-            duplicate_dict.pop(file_name)
+    duplicate_dict = {}
+    for (file_name, file_size), file_locations in files_locations_dict.items():
+        if len(file_locations) > 1:
+            duplicate_dict[(file_name, file_size)] = file_locations
     return duplicate_dict
 
 
 def pretty_print_same_files(duplicate_dict):
     print("Same files: ")
-    for file_name_tuple, file_locations in duplicate_dict.items():
-        file_name, file_size = file_name_tuple
+    for (file_name, file_size), file_locations in duplicate_dict.items():
         print("File name: {}".format(file_name))
         print("File size: {} bytes".format(file_size))
         print("File paths:")
@@ -48,4 +47,3 @@ if __name__ == "__main__":
                 print("There are no duplicates in the directory")
         else:
             print("Argument is not directory")
-
